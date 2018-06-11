@@ -1,6 +1,7 @@
 var Vue = require('./vue');
 var provider = require('./provider');
 var web3 = require("./provider");
+var api = require('./api');
 require("./components");
 
 var app = new Vue({
@@ -8,9 +9,10 @@ var app = new Vue({
     data: {
         activeSide: 1,
         errmsg: null,
-        txhash: '0x00fd8679ff3c11690622cd4b1fececfc314f68c4501479d94e4811fd9d55007e',
+        txhash: '',
         tx: {
-            show: true,
+            show: false,
+            cancellable: false,
             hash: '',
             state: '',
             from: '',
@@ -25,35 +27,58 @@ var app = new Vue({
         queryTx: function(event){
             this.errmsg = "";
             console.log('query tx:',this.txhash);
+            $app = this;
             if (this.txhash === ''){
                 this.errmsg = "no txhash found";
                 return;
             }
-            thistx = this.tx;
             hashid = this.txhash;
-            web3.eth.getTransactionReceipt(hashid).then(function(rept,eee){
-                console.log('===>',rept,eee);
-                if (rept.status) {
-                    thistx.state = 'Success';
-                }else{
-                    thistx.state = 'Fail';
-                }
-            }).on("error",console.log);
-            web3.eth.getTransaction(hashid).then(function(err,info){
-                thistx.show = true;
-                console.log(err,"get tx:",info);
-                thistx.hash = info.hash;
-                thistx.from = info.from;
-                thistx.to = info.to;
-                thistx.gasLimit = info.gas;
-                thistx.gasPrice = web3.utils.fromWei(info.gasPrice,"gwei")+" gwei";
-                thistx.value = web3.utils.fromWei(info.gasPrice,"ether")+" eth";
-                thistx.nonce = info.nonce;
+            $app.tx.state = 'search...';
+            $app.tx.hash = hashid;
+            $app.tx.from = '';
+            $app.tx.to = '';
+            $app.tx.gasLimit = 0;
+            $app.tx.gasPrice = '';
+            $app.tx.value = '';
+            $app.tx.nonce = 0;
+            $app.tx.cancellable = false;
 
+            web3.eth.getTransaction(hashid).then(function(info){
+                console.log(info);
+                if (typeof info === 'undefined'){
+                    $app.errmsg = 'tx not found';
+                    return;
+                }
+                $app.tx.show = true;
+                $app.tx.hash = info.hash;
+                $app.tx.from = info.from;
+                $app.tx.to = info.to;
+                $app.tx.gasLimit = info.gas;
+                $app.tx.gasPrice = web3.utils.fromWei(info.gasPrice,"gwei")+" gwei";
+                $app.tx.value = web3.utils.fromWei(info.value,"ether")+" eth";
+                $app.tx.nonce = info.nonce;
+                if (info.blockHash === '0x0000000000000000000000000000000000000000000000000000000000000000'){
+                    $app.tx.state = 'Pending';
+                    $app.tx.cancellable = true;
+                }else{
+                    $app.tx.cancellable = false;
+                    web3.eth.getTransactionReceipt(hashid).then(function(rept){
+                        if (rept.status) {
+                            $app.tx.state = 'Success';
+                        }else{
+                            $app.tx.state = 'Fail';
+                        }
+                    });
+                }
+                console.log($app.tx);
             });
 
         },
         cancelIt:function(){
+            if (!this.tx.cancellable){
+                this.errmsg = "tx state is "+this.tx.state+",which is not cancellable!";
+                return;
+            }
             $('#install-metamask').modal();
         },
         transfer:function(event){
@@ -96,3 +121,11 @@ var app = new Vue({
 });
 
 
+web3.eth.getAccounts(function(err,accounts){
+    api.pendingTx(accounts[0],function(err,txs){
+        if (txs.length > 0){
+            app.txhash = txs[0];
+            app.queryTx();
+        }
+    });
+});
