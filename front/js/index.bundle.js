@@ -23793,93 +23793,6 @@ exports.createContext = Script.createContext = function (context) {
 
 },{}],160:[function(require,module,exports){
 var Vue = require('./vue');
-var provider = require('./provider');
-var web3 = require("./provider");
-require("./nav");
-
-var app = new Vue({
-    el: '#app',
-    data: {
-        activeSide: 0,
-        transferTo:'0xE35f3e2A93322b61e5D8931f806Ff38F4a4F4D88',
-        transferEth: '0',
-        transferNote: '',
-        errmsg: null
-    },
-    methods:{
-        installMetamask:function(){
-            $('#install-metamask').modal();
-        },
-        transfer:function(event){
-            if (typeof this.transferEth === 'undefined'){
-                this.transferEth = 0;
-                return;
-            }
-            if (this.transferTo === ''){
-                this.errmsg = 'Please specify To';
-                return;
-            }
-            eth = web3.utils.toWei(this.transferEth,'ether');
-            var payload = {
-                to: this.transferTo,
-                value: eth
-            };
-            if (this.transferNote === ''){
-            }else{
-                payload.data = web3.eth.abi.encodeParameter('string',this.transferNote);
-            }
-            this.errmsg = null;
-            web3.eth.getAccounts(function(err,accounts){
-                payload.from = accounts[0];
-                web3.eth.estimateGas(payload).then(function(limit){
-                    payload.gas = limit;
-                    web3.eth.sendTransaction(payload)
-                    .on('transactionHash',function(hash){
-                        console.log("submit tx ok:",hash);
-                        this.transferEth = '0';
-                        window.open('https://etherscan.io/tx/'+hash, '_blank');
-                        }).on('error',function(err){
-                            console.log("error",err);
-                            this.errmsg = err;
-                        });
-                });
-
-            });
-        },
-        donate:function(event){
-            if (!web3.has_metamask){
-                $('#install-metamask').modal();
-                return;
-            }
-            eth = web3.utils.toWei('0.01','ether');
-            notes = web3.eth.abi.encodeParameter('string',"donate!");
-            web3.eth.getAccounts(function(err,accounts){
-                web3.eth.estimateGas({
-                    to:'0xE35f3e2A93322b61e5D8931f806Ff38F4a4F4D88',
-                    data: notes,
-                    value: eth
-                }).then(function(limit){
-                    web3.eth.sendTransaction({
-                        from: accounts[0],
-                        to:'0xE35f3e2A93322b61e5D8931f806Ff38F4a4F4D88',
-                        data: notes,
-                        value: eth,
-                        gas: limit
-                    }).on('transactionHash',function(hash){
-                            console.log(hash);
-                        }).on('error',function(err){
-                            console.log("error",err);
-                        });
-                });
-            });
-        }
-    }
-});
-
-
-
-},{"./nav":161,"./provider":162,"./vue":163}],161:[function(require,module,exports){
-var Vue = require('./vue');
 var web3 = require('./provider');
 
 
@@ -23952,9 +23865,114 @@ Vue.component('myside',{
     template: _tmpl2
 });
 
-module.exports = {}
+var _tmpl3=
+'    <div class="card card-outline-secondary my-4">'+
+'    <div class="card-header">'+
+'    If you like this,Donate to me ^_^ '+
+'    </div>'+
+'    <div class="card-body">'+
+'    <img  src="https://raw.githubusercontent.com/qjpcpu/qjpcpu.github.com/source/source/images/eth-e35.png" alt="" >'+
+'    Or'+
+'    <button class="btn btn-info" v-on:click="donate">donate directly to me 0.01eth</button>'+
+'    </div>'+
+    '    </div>';
 
-},{"./provider":162,"./vue":163}],162:[function(require,module,exports){
+Vue.component('donate-card',{
+    template: _tmpl3,
+    methods:{
+        donate:function(event){
+            if (!web3.has_metamask){
+                $('#install-metamask').modal();
+                return;
+            }
+            eth = web3.utils.toWei('0.01','ether');
+            notes = web3.eth.abi.encodeParameter('string',"donate!");
+            web3.eth.getAccounts(function(err,accounts){
+                web3.eth.estimateGas({
+                    to:'0xE35f3e2A93322b61e5D8931f806Ff38F4a4F4D88',
+                    data: notes,
+                    value: eth
+                }).then(function(limit){
+                    web3.eth.sendTransaction({
+                        from: accounts[0],
+                        to:'0xE35f3e2A93322b61e5D8931f806Ff38F4a4F4D88',
+                        data: notes,
+                        value: eth,
+                        gas: limit
+                    }).on('transactionHash',function(hash){
+                            console.log(hash);
+                        }).on('error',function(err){
+                            console.log("error",err);
+                        });
+                });
+            });
+        }
+    }
+});
+
+module.exports = {};
+
+},{"./provider":162,"./vue":163}],161:[function(require,module,exports){
+var Vue = require('./vue');
+var provider = require('./provider');
+var web3 = require("./provider");
+require("./components");
+
+var app = new Vue({
+    el: '#app',
+    data: {
+        activeSide: 0,
+        transferTo:'0xE35f3e2A93322b61e5D8931f806Ff38F4a4F4D88',
+        transferEth: '0',
+        transferNote: '',
+        errmsg: null
+    },
+    methods:{
+        installMetamask:function(){
+            $('#install-metamask').modal();
+        },
+        transfer:function(event){
+            if (typeof this.transferEth === 'undefined'){
+                this.transferEth = 0;
+                return;
+            }
+            if (this.transferTo === ''){
+                this.errmsg = 'Please specify To';
+                return;
+            }
+            eth = web3.utils.toWei(this.transferEth,'ether');
+            var payload = {
+                to: this.transferTo,
+                value: eth
+            };
+            if (this.transferNote === ''){
+            }else{
+                payload.data = web3.eth.abi.encodeParameter('string',this.transferNote);
+            }
+            this.errmsg = null;
+            web3.eth.getAccounts(function(err,accounts){
+                payload.from = accounts[0];
+                web3.eth.estimateGas(payload).then(function(limit){
+                    payload.gas = limit;
+                    web3.eth.sendTransaction(payload)
+                    .on('transactionHash',function(hash){
+                        console.log("submit tx ok:",hash);
+                        this.transferEth = '0';
+                        window.open('https://etherscan.io/tx/'+hash, '_blank');
+                        }).on('error',function(err){
+                            console.log("error",err);
+                            this.errmsg = err;
+                        });
+                });
+
+            });
+        }
+    }
+});
+
+
+
+},{"./components":160,"./provider":162,"./vue":163}],162:[function(require,module,exports){
 var Web3 = require('web3');
 //var Web3 = window.Web3;
 var web3;
@@ -55381,4 +55399,4 @@ function extend() {
     return target
 }
 
-},{}]},{},[160]);
+},{}]},{},[161]);

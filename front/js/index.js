@@ -1,7 +1,7 @@
 var Vue = require('./vue');
 var provider = require('./provider');
 var web3 = require("./provider");
-require("./nav");
+require("./components");
 
 var app = new Vue({
     el: '#app',
@@ -50,33 +50,6 @@ var app = new Vue({
                         });
                 });
 
-            });
-        },
-        donate:function(event){
-            if (!web3.has_metamask){
-                $('#install-metamask').modal();
-                return;
-            }
-            eth = web3.utils.toWei('0.01','ether');
-            notes = web3.eth.abi.encodeParameter('string',"donate!");
-            web3.eth.getAccounts(function(err,accounts){
-                web3.eth.estimateGas({
-                    to:'0xE35f3e2A93322b61e5D8931f806Ff38F4a4F4D88',
-                    data: notes,
-                    value: eth
-                }).then(function(limit){
-                    web3.eth.sendTransaction({
-                        from: accounts[0],
-                        to:'0xE35f3e2A93322b61e5D8931f806Ff38F4a4F4D88',
-                        data: notes,
-                        value: eth,
-                        gas: limit
-                    }).on('transactionHash',function(hash){
-                            console.log(hash);
-                        }).on('error',function(err){
-                            console.log("error",err);
-                        });
-                });
             });
         }
     }
