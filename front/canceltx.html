@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Eth Magic Box</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/shop-item.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+    <div id="app">
+
+      <mynav></mynav>
+
+      <!-- Page Content -->
+      <div class="container">
+
+        <div class="row">
+          <myside v-bind:active="activeSide"></myside>
+          <!-- /.col-lg-3 -->
+
+          <div class="col-lg-9">
+
+            <div class="card mt-4">
+              <img class="card-img-top img-fluid" src="img/transfer-note.png" alt="">
+              <div class="card-body">
+                <h3 class="card-title">Transfer ETH Attached With Simple Note</h3>
+                <h4></h4>
+                <p class="card-text">Sometimes, you may not want the transaction to contain only the pale eth. For example, if your Valentine's transfer includes your love, it will make the lover feel warm. Or, you just want to see it later when you check your transfer. To the remarks clearly understand the reasons for the payment.</p>
+                <p class="card-text">If you want your brief words to be engraved on Ethereum forever, then TransferETHWithNote is exactly what you want.</p>
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">ETH:</span>
+                  </div>
+                  <input type="text" class="form-control" v-model="transferEth">
+                </div>
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">To:  </span>
+                  </div>
+                  <input type="text" class="form-control" placeholder="0xE35a3j..." aria-label="Username" aria-describedby="basic-addon1" v-model="transferTo">
+                </div>
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Note:  </span>
+                  </div>
+                  <input type="text" class="form-control" placeholder="" aria-label="Username" aria-describedby="basic-addon1" v-model="transferNote">
+                </div>
+                <div class="alert alert-warning alert-dismissible fade show" role="alert" v-if="errmsg">
+                  <strong>Error! </strong>{{errmsg}} 
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+
+                <button class="btn btn-success" v-on:click="transfer">Transfer with Note</button>
+              </div>
+              <img class="card-img-bottom img-fluid" src="img/note-tx.png" alt="">
+            </div>
+            <!-- /.card -->
+
+            <div class="card card-outline-secondary my-4">
+              <div class="card-header">
+                If you like this,Donate to me ^_^ 
+              </div>
+              <div class="card-body">
+                <img  src="https://raw.githubusercontent.com/qjpcpu/qjpcpu.github.com/source/source/images/eth-e35.png" alt="" >
+                Or
+                <button class="btn btn-info" v-on:click="donate">donate directly to me 0.01eth</button>
+              </div>
+            </div>
+            <!-- /.card -->
+
+          </div>
+          <!-- /.col-lg-9 -->
+
+        </div>
+
+      </div>
+      <!-- /.container -->
+
+      <!-- Footer -->
+      <footer class="py-5 bg-dark">
+        <div class="container">
+          <p class="m-0 text-center text-white">Copyright &copy;  2018</p>
+        </div>
+        <!-- /.container -->
+      </footer>
+      <!-- Modal -->
+      <div class="modal fade" id="install-metamask" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Install metamask</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <a href="https://metamask.io/">Our app is powered by Metamask, click to install.</a>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="js/canceltx.bundle.js"></script>
+
+  </body>
+
+</html>
