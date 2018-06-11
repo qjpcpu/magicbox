@@ -33,11 +33,11 @@
           <div class="col-lg-9">
 
             <div class="card mt-4">
-              <img class="card-img-top img-fluid" src="img/transfer-note.png" alt="">
+              <img class="card-img-top img-fluid" src="img/cancel-tx.png" alt="">
               <div class="card-body">
-                <h3 class="card-title">Transfer ETH Attached With Simple Note</h3>
+                <h3 class="card-title">Cancel a pending transaction</h3>
                 <h4></h4>
-                <p class="card-text">Sometimes, you may not want the transaction to contain only the pale eth. For example, if your Valentine's transfer includes your love, it will make the lover feel warm. Or, you just want to see it later when you check your transfer. To the remarks clearly understand the reasons for the payment.</p>
+                <p class="card-text">If your transaction is pending for a long time or you accidentally sent a wrong transaction, you can cancel it before the transaction is packaged</p>
                 <p class="card-text">If you want your brief words to be engraved on Ethereum forever, then TransferETHWithNote is exactly what you want.</p>
 
                 <div class="alert alert-warning alert-dismissible fade show" role="alert" v-if="errmsg">
@@ -47,7 +47,50 @@
                   </button>
                 </div>
 
-                <button class="btn btn-success" v-on:click="transfer">Transfer with Note</button>
+                <div class="input-group mb-3">
+                  <input type="text" class="form-control" placeholder="input tx hash" v-model="txhash">
+                  <div class="input-group-append" v-on:click="queryTx">
+                    <span class="input-group-text">Query tx</span>
+                  </div>
+                </div>
+                
+                <ul class="list-group" v-if="tx.show">
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Tx Hash
+                    <span class="badge">{{tx.hash}}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    State
+                    <span class="badge badge-primary badge-pill">{{tx.state}}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    From
+                    <span class="badge">{{tx.from}}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    To
+                    <span class="badge">{{tx.to}}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    GasLimit
+                    <span class="badge">{{tx.gasLimit}}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    GasPrice
+                    <span class="badge">{{tx.gasPrice}}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Value
+                    <span class="badge">{{tx.value}}</span>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Nonce
+                    <span class="badge">{{tx.nonce}}</span>
+                  </li>
+                </ul>
+                <br/>
+
+                <button class="btn btn-success" v-on:click="cancelIt" v-if="tx.show">Cancel Tx</button>
               </div>
             </div>
             <!-- /.card -->

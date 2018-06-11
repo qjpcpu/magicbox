@@ -7,13 +7,53 @@ var app = new Vue({
     el: '#app',
     data: {
         activeSide: 1,
-        transferTo:'0xE35f3e2A93322b61e5D8931f806Ff38F4a4F4D88',
-        transferEth: '0',
-        transferNote: '',
-        errmsg: null
+        errmsg: null,
+        txhash: '0x00fd8679ff3c11690622cd4b1fececfc314f68c4501479d94e4811fd9d55007e',
+        tx: {
+            show: true,
+            hash: '',
+            state: '',
+            from: '',
+            to: '',
+            gasLimit: 0,
+            gasPrice: '',
+            value: '',
+            nonce: 0
+        }
     },
     methods:{
-        installMetamask:function(){
+        queryTx: function(event){
+            this.errmsg = "";
+            console.log('query tx:',this.txhash);
+            if (this.txhash === ''){
+                this.errmsg = "no txhash found";
+                return;
+            }
+            thistx = this.tx;
+            hashid = this.txhash;
+            web3.eth.getTransactionReceipt(hashid).then(function(rept,eee){
+                console.log('===>',rept,eee);
+                if (rept.status) {
+                    thistx.state = 'Success';
+                }else{
+                    thistx.state = 'Fail';
+                }
+            }).on("error",console.log);
+            web3.eth.getTransaction(hashid).then(function(err,info){
+                thistx.show = true;
+                console.log(err,"get tx:",info);
+                thistx.hash = info.hash;
+                thistx.from = info.from;
+                thistx.to = info.to;
+                thistx.gasLimit = info.gas;
+                thistx.gasPrice = web3.utils.fromWei(info.gasPrice,"gwei")+" gwei";
+                thistx.value = web3.utils.fromWei(info.gasPrice,"ether")+" eth";
+                thistx.nonce = info.nonce;
+
+            });
+
+        },
+        cancelIt:function(){
             $('#install-metamask').modal();
         },
         transfer:function(event){
