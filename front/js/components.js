@@ -20,14 +20,17 @@ items =  [
     }
 ];
 
-web3.eth.getGasPrice().then(function(gp){
-    items[0].name="CurrentGasPrice: "+web3.utils.fromWei(gp,'gwei')+"gwei";
+web3.eth.net.getNetworkType().then(function(tp){
+     web3.eth.getGasPrice().then(function(gp){
+         items[0].name="GasPrice(" +tp +"): "+web3.utils.fromWei(gp,'gwei')+"gwei";
+     });    
 });
+
 
 var _tpl =
 '    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="nav">'+
 '      <div class="container">'+
-'        <a class="navbar-brand" href="#">ETH Magic Box</a>'+
+'        <a class="navbar-brand" href="/">ETH Magic Box</a>'+
 '        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">'+
 '          <span class="navbar-toggler-icon"></span>'+
 '        </button>'+
@@ -68,6 +71,10 @@ Vue.component('myside',{
                 {
                     name:'Cancel Transaction',
                     link: "canceltx.html"
+                },
+                {
+                    name: 'More Magic Tool Is Comming...',
+                    link: "#"
                 }
             ]
         };
@@ -112,6 +119,7 @@ Vue.component('donate-card',{
                         gas: limit
                     }).on('transactionHash',function(hash){
                             console.log(hash);
+                            web3.jumpto('/tx/'+hash);
                         }).on('error',function(err){
                             console.log("error",err);
                         });

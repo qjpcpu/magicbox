@@ -14,14 +14,18 @@ echo -n ';' >> js/abi.js
 echo '' >> js/abi.js
 
 echo  'module.exports = { magicbox: magicbox };' >> js/abi.js
+browserify ./js/index.js > ./js/index.bundle.js
+browserify ./js/canceltx.js > ./js/canceltx.bundle.js
 echo 'Build OK'
 
 if [ "$1" == "dist" ];then
-    rm -fr ./dist/*
-    mkdir -p ./dist/js    
+    mkdir -p ./dist
+    rm -fr ./dist/*   
+    mkdir -pv ./dist/js
     cp -a ./vendor ./img ./css ./dist
-    browserify ./js/index.js > ./dist/js/index.bundle.js
-    browserify ./js/canceltx.js > ./dist/js/canceltx.bundle.js
+    cp ./js/*.bundle.js ./dist/js
+    cp ./favicon.ico ./dist
+
     cp  ./*.html ./dist
 fi
 )

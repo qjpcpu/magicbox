@@ -30,6 +30,16 @@ web3.getinfura = function(cb){
     }
 };
 
+web3.jumpto = function(path){
+    web3.eth.net.getNetworkType().then(function(tp){
+        if(tp === 'main'){
+            window.open('https://etherscan.io'+path, '_blank');
+        }else{
+            window.open('https://ropsten.etherscan.io'+path, '_blank');
+        }
+    });
+};
+
 window.myweb3 = web3;
 
 module.exports = web3;

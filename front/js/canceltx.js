@@ -129,7 +129,7 @@ var app = new Vue({
                             infura.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
                                 .on('transactionHash', function(hash){
                                     console.log('cancel tx:',hash);
-                                    window.open('https://etherscan.io/tx/'+hash, '_blank');
+                                    web3.jumpto('/tx/'+hash);
                                 }).on('error',function(err){
                                     console.log("error:",err);
                                 });
@@ -166,7 +166,7 @@ var app = new Vue({
                     .on('transactionHash',function(hash){
                         console.log("submit tx ok:",hash);
                         this.transferEth = '0';
-                        window.open('https://etherscan.io/tx/'+hash, '_blank');
+                        web3.jumpto('/tx/'+hash);
                         }).on('error',function(err){
                             console.log("error",err);
                             this.errmsg = err;
