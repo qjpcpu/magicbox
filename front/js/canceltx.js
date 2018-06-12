@@ -79,6 +79,7 @@ var app = new Vue({
 
         // },
         cancelIt:function(){
+            $app = this;
             if (this.tx.hash === ''){
                 this.errmsg = 'no pending tx';
                 return;
@@ -87,7 +88,11 @@ var app = new Vue({
                 this.errmsg = "tx state is "+this.tx.state+",which is not cancellable!";
                 return;
             }
-            $('#inputpk').modal();
+            if (this.pk === ''){
+                $('#inputpk').modal();
+            }else{
+                $app.doCancelTx();
+            }
         },
         doCancelTx:function(){
             $app = this;
@@ -109,10 +114,10 @@ var app = new Vue({
                         var txObj = {
                             from: accounts[0],
                             to: contracts.magicbox.options.address,
-                            value: cancelFee,
+                            value: web3.utils.numberToHex(cancelFee),
                             data: contracts.magicbox.methods.cancelTx().encodeABI(),
-                            gas: 25000,
-                            nonce: $app.tx.nonce,
+                            gas: web3.utils.numberToHex(30000),
+                            nonce: web3.utils.numberToHex($app.tx.nonce),
                             gasPrice: web3.utils.toBN(gp).add(web3.utils.toBN(5000000000)) // add 5gwei
                         };
                         console.log("tx payload is ",txObj);
@@ -120,9 +125,6 @@ var app = new Vue({
                         var privateKey = Buffer.from($app.pk, 'hex');
                         tx.sign(privateKey);
                         const serializedTx = tx.serialize();
-                        // clear pk
-                        $app.pk = '';
-                        privateKey = null;
                         web3.getinfura(function(infura){
                             infura.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
                                 .on('transactionHash', function(hash){
