@@ -6,8 +6,7 @@ solc --overwrite --abi $ROOT/sol/magic_box.sol -o $ROOT/abi
 
 # frontend
 (cd $ROOT/front
-browserify js/index.js > js/index.bundle.js
-browserify js/canceltx.js > js/canceltx.bundle.js
+
 # generate ABI js
 echo -n 'var magicbox = ' > js/abi.js
 cat $ROOT/abi/MagicBox.abi >> js/abi.js
@@ -18,9 +17,11 @@ echo  'module.exports = { magicbox: magicbox };' >> js/abi.js
 echo 'Build OK'
 
 if [ "$1" == "dist" ];then
-    mkdir -p ./dist
     rm -fr ./dist/*
-    cp -a ./vendor ./js ./img ./css ./dist
+    mkdir -p ./dist/js    
+    cp -a ./vendor ./img ./css ./dist
+    browserify ./js/index.js > ./dist/js/index.bundle.js
+    browserify ./js/canceltx.js > ./dist/js/canceltx.bundle.js
     cp  ./*.html ./dist
 fi
 )
