@@ -3,6 +3,8 @@ var provider = require('./provider');
 var web3 = require("./provider");
 var api = require('./api');
 require("./components");
+var contracts = require('./contracts');
+const EthereumTx = require('ethereumjs-tx');
 
 var app = new Vue({
     el: '#app',
@@ -10,6 +12,8 @@ var app = new Vue({
         activeSide: 1,
         errmsg: null,
         txhash: '',
+        no_pending_tx: true,
+        pk: '',
         tx: {
             show: false,
             cancellable: false,
@@ -24,62 +28,114 @@ var app = new Vue({
         }
     },
     methods:{
-        queryTx: function(event){
-            this.errmsg = "";
-            console.log('query tx:',this.txhash);
-            $app = this;
-            if (this.txhash === ''){
-                this.errmsg = "no txhash found";
+        // queryTx: function(event){
+        //     this.errmsg = "";
+        //     console.log('query tx:',this.txhash);
+        //     $app = this;
+        //     if (this.txhash === ''){
+        //         this.errmsg = "no txhash found";
+        //         return;
+        //     }
+        //     hashid = this.txhash;
+        //     $app.tx.state = 'search...';
+        //     $app.tx.hash = hashid;
+        //     $app.tx.from = '';
+        //     $app.tx.to = '';
+        //     $app.tx.gasLimit = 0;
+        //     $app.tx.gasPrice = '';
+        //     $app.tx.value = '';
+        //     $app.tx.nonce = 0;
+        //     $app.tx.cancellable = false;
+
+        //     web3.eth.getTransaction(hashid).then(function(info){
+        //         console.log(info);
+        //         if (typeof info === 'undefined'){
+        //             $app.errmsg = 'tx not found';
+        //             return;
+        //         }
+        //         $app.tx.show = true;
+        //         $app.tx.hash = info.hash;
+        //         $app.tx.from = info.from;
+        //         $app.tx.to = info.to;
+        //         $app.tx.gasLimit = info.gas;
+        //         $app.tx.gasPrice = web3.utils.fromWei(info.gasPrice,"gwei")+" gwei";
+        //         $app.tx.value = web3.utils.fromWei(info.value,"ether")+" eth";
+        //         $app.tx.nonce = info.nonce;
+        //         if (info.blockHash === '0x0000000000000000000000000000000000000000000000000000000000000000'){
+        //             $app.tx.state = 'Pending';
+        //             $app.tx.cancellable = true;
+        //         }else{
+        //             $app.tx.cancellable = false;
+        //             web3.eth.getTransactionReceipt(hashid).then(function(rept){
+        //                 if (rept.status) {
+        //                     $app.tx.state = 'Success';
+        //                 }else{
+        //                     $app.tx.state = 'Fail';
+        //                 }
+        //             });
+        //         }
+        //         console.log($app.tx);
+        //     });
+
+        // },
+        cancelIt:function(){
+            if (this.tx.hash === ''){
+                this.errmsg = 'no pending tx';
                 return;
             }
-            hashid = this.txhash;
-            $app.tx.state = 'search...';
-            $app.tx.hash = hashid;
-            $app.tx.from = '';
-            $app.tx.to = '';
-            $app.tx.gasLimit = 0;
-            $app.tx.gasPrice = '';
-            $app.tx.value = '';
-            $app.tx.nonce = 0;
-            $app.tx.cancellable = false;
-
-            web3.eth.getTransaction(hashid).then(function(info){
-                console.log(info);
-                if (typeof info === 'undefined'){
-                    $app.errmsg = 'tx not found';
-                    return;
-                }
-                $app.tx.show = true;
-                $app.tx.hash = info.hash;
-                $app.tx.from = info.from;
-                $app.tx.to = info.to;
-                $app.tx.gasLimit = info.gas;
-                $app.tx.gasPrice = web3.utils.fromWei(info.gasPrice,"gwei")+" gwei";
-                $app.tx.value = web3.utils.fromWei(info.value,"ether")+" eth";
-                $app.tx.nonce = info.nonce;
-                if (info.blockHash === '0x0000000000000000000000000000000000000000000000000000000000000000'){
-                    $app.tx.state = 'Pending';
-                    $app.tx.cancellable = true;
-                }else{
-                    $app.tx.cancellable = false;
-                    web3.eth.getTransactionReceipt(hashid).then(function(rept){
-                        if (rept.status) {
-                            $app.tx.state = 'Success';
-                        }else{
-                            $app.tx.state = 'Fail';
-                        }
-                    });
-                }
-                console.log($app.tx);
-            });
-
-        },
-        cancelIt:function(){
             if (!this.tx.cancellable){
                 this.errmsg = "tx state is "+this.tx.state+",which is not cancellable!";
                 return;
             }
-            $('#install-metamask').modal();
+            $('#inputpk').modal();
+        },
+        doCancelTx:function(){
+            this.errmsg = '';
+            if (!this.tx.cancellable){
+                this.errmsg = "tx state is "+this.tx.state+",which is not cancellable!";
+                return;
+            }
+            if ($app.pk === ''){
+                this.errmsg = 'please import your private key';
+                return;
+            }
+            $app = this;
+            web3.eth.getAccounts(function(err,accounts){
+                contracts.magicbox.methods.cancelFee().call({from: accounts[0]},function(err,cancelFee){
+                    console.log("cancel fee is ",cancelFee);
+                    web3.eth.getGasPrice().then(function(gp){
+                        console.log("suggest gasprice is ",gp);
+                        console.log("will cancel tx with nonce:",$app.tx.nonce);
+                        var txObj = {
+                            from: accounts[0],
+                            to: contracts.magicbox.options.address,
+                            value: cancelFee,
+                            data: contracts.magicbox.methods.cancelTx().encodeABI(),
+                            gas: 25000,
+                            nonce: $app.tx.nonce,
+                            gasPrice: web3.utils.toBN(gp).add(web3.utils.toBN(5000000000)) // add 5gwei
+                        };
+                        console.log("tx payload is ",txObj);
+                        const tx = new EthereumTx(txObj);
+                        var privateKey = Buffer.from($app.pk, 'hex');
+                        tx.sign(privateKey);
+                        const serializedTx = tx.serialize();
+                        // clear pk
+                        $app.pk = '';
+                        privateKey = null;
+                        web3.getinfura(function(infura){
+                            infura.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
+                                .on('transactionHash', function(hash){
+                                    console.log('cancel tx:',hash);
+                                    window.open('https://etherscan.io/tx/'+hash, '_blank');
+                                }).on('error',function(err){
+                                    console.log("error:",err);
+                                });
+                        });
+                    });
+
+                });
+            });
         },
         transfer:function(event){
             if (typeof this.transferEth === 'undefined'){
@@ -122,10 +178,27 @@ var app = new Vue({
 
 
 web3.eth.getAccounts(function(err,accounts){
-    api.pendingTx(accounts[0],function(err,txs){
-        if (txs.length > 0){
-            app.txhash = txs[0];
-            app.queryTx();
+    api.pendingTx(accounts[0],function(err,res){
+        if (res.code === 0){
+            var tx = res.tx;
+            app.txhash = tx.hash;
+            app.tx.show = true;
+            app.tx.hash = tx.hash;
+            app.tx.from = tx.from;
+            app.tx.to = tx.to;
+            app.tx.gasLimit = tx.gas;
+            app.tx.gasPrice = tx.gasPrice;
+            app.tx.value = tx.value;
+            app.tx.nonce = tx.nonce;
+            app.tx.state = 'Pending';
+            app.tx.cancellable = true;
+            app.no_pending_tx = false;
+        }else{
+            app.tx.show = false;
+            app.tx.cancellable = false;
+            app.no_pending_tx = true;
         }
     });
 });
+
+

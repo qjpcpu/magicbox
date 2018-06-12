@@ -8,8 +8,13 @@ solc --overwrite --abi $ROOT/sol/magic_box.sol -o $ROOT/abi
 (cd $ROOT/front
 browserify js/index.js > js/index.bundle.js
 browserify js/canceltx.js > js/canceltx.bundle.js
-echo -n 'module.exports = ' > js/abi.js
+# generate ABI js
+echo -n 'var magicbox = ' > js/abi.js
 cat $ROOT/abi/MagicBox.abi >> js/abi.js
+echo -n ';' >> js/abi.js
+echo '' >> js/abi.js
+
+echo  'module.exports = { magicbox: magicbox };' >> js/abi.js
 echo 'Build OK'
 
 if [ "$1" == "dist" ];then

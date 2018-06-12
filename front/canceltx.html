@@ -47,12 +47,19 @@
                   </button>
                 </div>
 
-                <div class="input-group mb-3">
-                  <input type="text" class="form-control" placeholder="input tx hash" v-model="txhash">
-                  <div class="input-group-append" v-on:click="queryTx">
-                    <span class="input-group-text">Query tx</span>
-                  </div>
+                <div class="alert alert-info alert-dismissible fade show" role="alert" v-if="no_pending_tx">
+                  <strong>No pending transactions</strong> 
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
                 </div>
+
+                <!-- <div class="input-group mb-3"> -->
+                  <!--   <input type="text" class="form-control" placeholder="input tx hash" v-model="txhash"> -->
+                  <!--   <div class="input-group-append" v-on:click="queryTx"> -->
+                    <!--     <span class="input-group-text">Query tx</span> -->
+                    <!--   </div> -->
+                  <!-- </div> -->
                 
                 <ul class="list-group" v-if="tx.show">
                   <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -127,6 +134,35 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="inputpk" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Import Private Key</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="form-group">
+                  <img src="./img/export-pk.png"/>
+                  <img src="./img/show-pk.png"/>
+                </div>
+                <div class="form-group">
+                  <label for="recipient-name" class="col-form-label">Cancel Tx must use your private key, please export from your metamask and paste below.</label>
+                  <input type="text" class="form-control" v-model="pk">
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="doCancelTx">Cancel Tx Now</button>
             </div>
           </div>
         </div>

@@ -1,7 +1,9 @@
 package ctrls
 
 import (
+	"context"
 	"errors"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
 	"github.com/qjpcpu/ethereum/etherscan"
 	"github.com/qjpcpu/log"
@@ -24,23 +26,25 @@ func AllowCORS(c *gin.Context) {
 
 func GetPendingTx(c *gin.Context) {
 	var err error
-	var pendings []string
+	var txDetail etherscan.PendingTx
 	owner := c.Query("address")
 	for loop := true; loop; loop = false {
 		if owner == "" {
 			err = errors.New("no address")
 			break
 		}
-		pendings, err = etherscan.PendingTxs(conf.EtherscanEnv, owner)
+		nonce, nerr := conf.EthConn().PendingNonceAt(context.Background(), common.HexToAddress(owner))
+		if nerr != nil {
+			err = nerr
+			break
+		}
+		log.Infof("get pending nonce:%v", nonce)
+		txDetail, err = etherscan.GetBlockedPendingTx(conf.EtherscanEnv, owner, nonce)
 	}
 	if err != nil {
 		log.Errorf("get pending tx fail:%v", err)
 		c.JSON(http.StatusOK, gin.H{"code": 1, "msg": err.Error()})
 	} else {
-		if len(pendings) == 0 {
-			// make sure return empty array nor null
-			pendings = make([]string, 0)
-		}
-		c.JSON(http.StatusOK, gin.H{"code": 0, "txs": pendings})
+		c.JSON(http.StatusOK, gin.H{"code": 0, "tx": txDetail})
 	}
 }

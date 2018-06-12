@@ -9,7 +9,7 @@ function pendingTx(address,cb){
     client = rest.wrap(mime);
     client({ path: backend+'/tx/pending?address='+address }).then(function(response) {
         console.log('get pending tx: ', response.entity);
-        cb(null,response.entity.txs);
+        cb(null,response.entity);
     });
 }
 
