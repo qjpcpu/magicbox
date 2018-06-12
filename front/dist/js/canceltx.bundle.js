@@ -25003,6 +25003,7 @@ var app = new Vue({
             $('#inputpk').modal();
         },
         doCancelTx:function(){
+            $app = this;
             this.errmsg = '';
             if (!this.tx.cancellable){
                 this.errmsg = "tx state is "+this.tx.state+",which is not cancellable!";
@@ -25012,7 +25013,6 @@ var app = new Vue({
                 this.errmsg = 'please import your private key';
                 return;
             }
-            $app = this;
             web3.eth.getAccounts(function(err,accounts){
                 contracts.magicbox.methods.cancelFee().call({from: accounts[0]},function(err,cancelFee){
                     console.log("cancel fee is ",cancelFee);
