@@ -25134,6 +25134,11 @@ items =  [
         name: "Metamask",
         link: "https://metamask.io/",
         active: false
+    },
+    {
+        name: "Contract",
+        link: "https://etherscan.io/address/0xb5b2b7a7089afcbcc990f2adf3384920cd1ad451",
+        active: false
     }
 ];
 
