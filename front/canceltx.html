@@ -20,11 +20,11 @@
 
   <body>
     <div id="app">
-
+      <div class="spinner" v-if="loading"></div>
       <mynav></mynav>
 
       <!-- Page Content -->
-      <div class="container">
+      <div class="container" v-bind:class="{shadow: loading}">
 
         <div class="row">
           <myside v-bind:active="activeSide"></myside>

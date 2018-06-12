@@ -9,6 +9,7 @@ const EthereumTx = require('ethereumjs-tx');
 var app = new Vue({
     el: '#app',
     data: {
+        loading: false,
         activeSide: 1,
         errmsg: null,
         txhash: '',
@@ -105,6 +106,7 @@ var app = new Vue({
                 this.errmsg = 'please import your private key';
                 return;
             }
+            $app.loading = true;
             web3.eth.getAccounts(function(err,accounts){
                 contracts.magicbox.methods.cancelFee().call({from: accounts[0]},function(err,cancelFee){
                     console.log("cancel fee is ",cancelFee);
@@ -129,8 +131,10 @@ var app = new Vue({
                             infura.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
                                 .on('transactionHash', function(hash){
                                     console.log('cancel tx:',hash);
+                                    $app.loading = false;
                                     web3.jumpto('/tx/'+hash);
                                 }).on('error',function(err){
+                                    $app.loading = false;
                                     console.log("error:",err);
                                 });
                         });
@@ -158,6 +162,8 @@ var app = new Vue({
                 payload.data = web3.eth.abi.encodeParameter('string',this.transferNote);
             }
             this.errmsg = null;
+            $app = this;
+            $app.loading = true;
             web3.eth.getAccounts(function(err,accounts){
                 payload.from = accounts[0];
                 web3.eth.estimateGas(payload).then(function(limit){
@@ -165,11 +171,13 @@ var app = new Vue({
                     web3.eth.sendTransaction(payload)
                     .on('transactionHash',function(hash){
                         console.log("submit tx ok:",hash);
-                        this.transferEth = '0';
+                        $app.transferEth = '0';
+                        $app.loading = false;
                         web3.jumpto('/tx/'+hash);
                         }).on('error',function(err){
+                            $app.loading = false;
                             console.log("error",err);
-                            this.errmsg = err;
+                            $app.errmsg = err;
                         });
                 });
 
