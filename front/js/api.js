@@ -14,6 +14,24 @@ function pendingTx(address,cb){
     });
 }
 
+function calcTxHash(tx,cb){
+    client = rest.wrap(mime);
+    client({ method: "POST",path: backend+'/tx/calc_hash',entity: JSON.stringify(tx) }).then(function(response) {
+        console.log('get tx: ', response.entity);
+        cb(null,response.entity);
+    });
+}
+
+function sendRawTx(tx,cb){
+    client = rest.wrap(mime);
+    client({ method: "POST",path: backend+'/tx/send_raw_tx',entity: JSON.stringify(tx) }).then(function(response) {
+        console.log('get tx: ', response.entity);
+        cb(null,response.entity);
+    });
+}
+
 module.exports = {
-    pendingTx: pendingTx
+    pendingTx: pendingTx,
+    calcTxHash: calcTxHash,
+    sendRawTx: sendRawTx
 };
