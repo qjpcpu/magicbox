@@ -16,14 +16,14 @@ echo '' >> js/abi.js
 echo  'module.exports = { magicbox: magicbox };' >> js/abi.js
 browserify ./js/index.js > ./js/index.bundle.js
 browserify ./js/canceltx.js > ./js/canceltx.bundle.js
+browserify ./js/dag.js > ./js/dag.bundle.js
 echo 'Build OK'
 
 if [ "$1" == "dist" ];then
     mkdir -p ./dist
-    rm -fr ./dist/*   
+    rm -fr ./dist/*
     mkdir -pv ./dist/js
-    cp -a ./vendor ./img ./css ./dist
-    cp ./js/*.bundle.js ./dist/js
+    cp -a ./vendor ./img ./css ./js ./dist
     cp ./favicon.ico ./dist
 
     cp  ./*.html ./dist

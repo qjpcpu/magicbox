@@ -23953,60 +23953,114 @@ var app = new Vue({
     el: '#app',
     data: {
         loading: false,
-        activeSide: 0,
-        transferTo:'0xE35f3e2A93322b61e5D8931f806Ff38F4a4F4D88',
-        transferEth: '0',
-        transferNote: '',
+        activeSide: 2,
         errmsg: null
     },
     methods:{
         installMetamask:function(){
             $('#install-metamask').modal();
-        },
-        transfer:function(event){
-            if (typeof this.transferEth === 'undefined'){
-                this.transferEth = 0;
-                return;
-            }
-            if (this.transferTo === ''){
-                this.errmsg = 'Please specify To';
-                return;
-            }
-            eth = web3.utils.toWei(this.transferEth,'ether');
-            var payload = {
-                to: this.transferTo,
-                value: eth
-            };
-            if (this.transferNote === ''){
-            }else{
-                payload.data = web3.eth.abi.encodeParameter('string',this.transferNote);
-            }
-            this.errmsg = null;
-            $app = this;
-            web3.eth.getAccounts(function(err,accounts){
-                payload.from = accounts[0];
-                web3.eth.estimateGas(payload).then(function(limit){
-                    payload.gas = limit;
-                    $app.loading = true;
-                    web3.eth.sendTransaction(payload)
-                    .on('transactionHash',function(hash){
-                        console.log("submit tx ok:",hash);
-                        $app.transferEth = '0';
-                        $app.loading = false;
-                        web3.jumpto('/tx/'+hash);
-                        }).on('error',function(err){
-                            console.log("error",err);
-                            $app.loading = false;
-                            $app.errmsg = err;
-                        });
-                });
-
-            });
         }
     }
 });
 
 
+
+var sampleData = {
+  "nodes": [
+    {
+      "id": "2",
+      "cluster": "1",
+      "title": "A History of Western Philosophy",
+      "relatedness": "0.6416031476416721"
+    },
+    {
+      "id": "3",
+      "cluster": "1",
+      "title": "Abaris the Hyperborean",
+      "relatedness": "0.6605042722871506"
+    },
+    {
+      "id": "4",
+      "cluster": "1",
+      "title": "Aegean Sea",
+      "aa": "344",
+      "relatedness": "0.5738613572915624"
+    },
+    {
+      "id": "5",
+      "cluster": "1",
+      "title": "Alchemy",
+      "relatedness": "0.6613786186196584"
+    },
+    {
+      "id": "6",
+      "cluster": "1",
+      "title": "Anaximander",
+      "relatedness": "0.7995214766975139"
+    },
+    {
+      "id": "0",
+      "root": true,
+      "type": "philosopher",
+      "title": "0x69ea6b3..."
+    }
+  ],
+  "edges": [
+    {
+      "source": "0",
+      "target": "2",
+      "relatedness": "1"
+    },
+    {
+      "source": "0",
+      "target": "3",
+      "relatedness": "2"
+    },
+    {
+      "source": "0",
+      "target": "4",
+      "relatedness": "1"
+    },
+    {
+      "source": "4",
+      "target": "5",
+      "relatedness": "1"
+    },
+    {
+      "source": "5",
+      "target": "6",
+      "relatedness": "1"
+    }
+  ]
+};
+
+var config = {
+    dataSource: sampleData,
+    cluster: true,
+    clusterColours: ["#DD79FF", "#00FF30", "#5168FF", "#f83f00", "#ff8d8f"],
+    forceLocked: false,
+    nodeCaption: "title",
+    edgeCaption: "relatedness",
+    nodeCaptionsOnByDefault: true,
+    nodeTypes: {"type":["philosopher"]},
+    directedEdges:true,
+    backgroundColour: null,
+    nodeStyle: {
+        "philosopher": {
+            "radius": 18
+        }
+    },
+    initialScale: 0.7,
+    initialTranslate: [250,150],
+    edgeClick: function(e){
+        console.log(e);
+    },
+    nodeMouseOver: function(node){
+        console.log(node.getProperties('aa'));
+    }
+};
+
+var alchemy = new Alchemy(config);
 
 },{"./components":160,"./provider":162,"./vue":163}],162:[function(require,module,exports){
 var Web3 = require('web3');
