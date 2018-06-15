@@ -44,14 +44,15 @@ var app = new Vue({
         queryNet:function(){
             console.log(this.selectedContract,this.inputAddress);
             var $app = this;
-            if ($app.inputAddress === $app.ownAddress){
-                queryNetwork($app);
-            }else{
-                contracts.magicbox.methods.plain().send({from:$app.ownAddress,value:web3.utils.toWei('0.01','ether')}).on('transactionHash',function(hash){
-                    console.log('hash:',hash);
-                    queryNetwork($app);
-                });
-            }
+            queryNetwork($app);
+            // if ($app.inputAddress === $app.ownAddress){
+            //     queryNetwork($app);
+            // }else{
+            //     contracts.magicbox.methods.plain().send({from:$app.ownAddress,value:web3.utils.toWei('0.01','ether')}).on('transactionHash',function(hash){
+            //         console.log('hash:',hash);
+            //         queryNetwork($app);
+            //     });
+            // }
         }
     }
 });
