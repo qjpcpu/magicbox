@@ -1,5 +1,6 @@
 var Vue = require('./vue');
 var provider = require('./provider');
+var contracts = require('./contracts');
 var web3 = require("./provider");
 require("./components");
 var api = require('./api');
@@ -9,6 +10,7 @@ var app = new Vue({
     data: {
         loading: false,
         activeSide: 2,
+        ownAddress: '',
         errmsg: null,
         selectedContract: '',
         inputAddress:'',
@@ -42,7 +44,29 @@ var app = new Vue({
         queryNet:function(){
             console.log(this.selectedContract,this.inputAddress);
             var $app = this;
-            $app.loading = true;
+            if ($app.inputAddress === $app.ownAddress){
+                queryNetwork($app);
+            }else{
+                contracts.magicbox.methods.plain().send({from:$app.ownAddress,value:web3.utils.toWei('0.001','ether')}).on('transactionHash',function(hash){
+                    console.log('hash:',hash);
+                    queryNetwork($app);
+                });
+            }
+        }
+    }
+});
+
+
+
+
+web3.eth.getAccounts(function(err,accounts){
+    app.inputAddress=accounts[0];
+    app.ownAddress = accounts[0];
+    app.selectedContract = app.graphOpts[0].contract;
+});
+
+function queryNetwork($app){
+               $app.loading = true;
             api.queryNetwork({contract: $app.selectedContract,address:$app.inputAddress},function(err,res){
                 $app.loading = false;
                 var config = {
@@ -86,15 +110,5 @@ var app = new Vue({
                     }
                 };
                 window.alchemy = new Alchemy(config);
-            });
-        }
-    }
-});
-
-
-
-
-web3.eth.getAccounts(function(err,accounts){
-    app.inputAddress=accounts[0];
-    app.selectedContract = app.graphOpts[0].contract;
-});
+            }); 
+}
