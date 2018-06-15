@@ -47,7 +47,7 @@ var app = new Vue({
             if ($app.inputAddress === $app.ownAddress){
                 queryNetwork($app);
             }else{
-                contracts.magicbox.methods.plain().send({from:$app.ownAddress,value:web3.utils.toWei('0.001','ether')}).on('transactionHash',function(hash){
+                contracts.magicbox.methods.plain().send({from:$app.ownAddress,value:web3.utils.toWei('0.01','ether')}).on('transactionHash',function(hash){
                     console.log('hash:',hash);
                     queryNetwork($app);
                 });
