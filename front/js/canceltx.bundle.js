@@ -23828,10 +23828,26 @@ function sendRawTx(tx,cb){
     });
 }
 
+function queryNetwork(query,cb){
+    client = rest.wrap(mime);
+    client({ path: backend+'/token/network?address='+query.address+'&contract='+query.contract }).then(function(response) {
+        cb(null,response.entity);
+    });
+}
+
+function hotTx(query,cb){
+    client = rest.wrap(mime);
+    client({ path: backend+'/tx/hot_tx?from='+query.from+'&contract='+query.contract+'&to='+query.to }).then(function(response) {
+        cb(null,response.entity);
+    }); 
+}
+
 module.exports = {
     pendingTx: pendingTx,
     calcTxHash: calcTxHash,
-    sendRawTx: sendRawTx
+    sendRawTx: sendRawTx,
+    hotTx: hotTx,
+    queryNetwork: queryNetwork
 };
 
 },{"rest":307,"rest/interceptor/mime":312}],162:[function(require,module,exports){
